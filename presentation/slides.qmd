@@ -1,0 +1,466 @@
+---
+title: "Mahjong Rule & Scoring System"
+author: "Cassie Wang"
+format:
+  revealjs:
+    ratio: "16:9"
+    code-fold: false
+    code-tools: true
+    line-numbers: true
+    highlight-style: github
+    theme: default
+    transition: slide
+    slide-number: true
+    chalkboard:
+      buttons: false
+    preview-links: auto
+    css: |
+      /* 限制幻灯片最大尺寸，防止大窗口下过度放大 */
+      .reveal .slides {
+        max-width: 1200px !important;
+        max-height: 675px !important;
+        margin: auto !important;
+      }
+      /* 基础字体大小 */
+      .reveal {
+        font-size: 0.85em !important;
+      }
+      /* 确保每个 section 内容适应容器 */
+      .reveal .slides section {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        overflow: auto !important;
+        box-sizing: border-box !important;
+        padding: 0.5em 1em !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      /* 标题样式 */
+      .reveal h1 {
+        font-size: 1.8em !important;
+        margin: 0.3em 0 !important;
+        line-height: 1.2 !important;
+      }
+      .reveal h2 {
+        font-size: 1.5em !important;
+        margin: 0.3em 0 !important;
+        line-height: 1.2 !important;
+      }
+      .reveal h3 {
+        font-size: 1.2em !important;
+        margin: 0.2em 0 !important;
+        line-height: 1.2 !important;
+      }
+      /* 文本样式 */
+      .reveal p, .reveal li {
+        font-size: 0.9em !important;
+        margin: 0.2em 0 !important;
+        line-height: 1.4 !important;
+      }
+      /* 确保列布局不会溢出 */
+      .reveal .columns {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        flex-wrap: wrap !important;
+      }
+      .reveal .column {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+      }
+      /* 代码块响应式 */
+      .reveal pre {
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        font-size: 0.75em !important;
+        margin: 0.3em 0 !important;
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+      }
+      /* 响应式字体大小：根据视口调整 */
+      @media screen and (min-width: 1920px) {
+        .reveal {
+          font-size: 0.75em !important;
+        }
+        .reveal .slides {
+          max-width: 1400px !important;
+          max-height: 787px !important;
+        }
+      }
+      @media screen and (min-width: 2560px) {
+        .reveal {
+          font-size: 0.7em !important;
+        }
+        .reveal .slides {
+          max-width: 1600px !important;
+          max-height: 900px !important;
+        }
+      }
+---
+
+## Why Mahjong?
+
+::: {.columns}
+::: {.column width="55%"}
+### Cognitive & Emotional Value
+
+- **Cognitive workload**  
+  Sustained attention, working memory, pattern recognition,  
+  and rapid state updating under uncertainty
+
+- **Social interaction**  
+  Turn-taking, anticipation, negotiation, and shared rituals
+
+- **Wellbeing support**  
+  Light competition + companionship → emotional buffering
+:::
+
+::: {.column width="45%"}
+### Why this matters
+
+- Mahjong is **rule-dense**, not UI-heavy  
+- Learning difficulty comes from **hidden logic**, not visuals  
+- → Ideal for a **Python-based rule engine**
+:::
+:::
+
+::: notes
+I frame Mahjong as cognitively rich and socially meaningful, not just entertaining.
+This sets up why a computational approach makes sense.
+:::
+
+---
+
+## The Challenge
+
+- **Complex rule system**: Sichuan Mahjong has intricate scoring rules with multiple hand types, multipliers, and special events
+- **Data-driven requirements**: Rules must be configurable without code changes
+- **Real-time validation**: Need to check winning hands and calculate scores accurately
+- **Multi-player support**: Handle complex settlement logic with transfers between players
+- **AI integration**: Natural language Q&A for rule explanations
+
+::: {.notes}
+The problem requires a system that can handle complex, nested rules while
+maintaining flexibility and correctness. We need to separate concerns between
+rule definition, validation logic, and scoring computation.
+:::
+
+---
+
+## System Architecture
+
+### Component Overview
+
+**Backend (Python/FastAPI)**
+- **Rule Engine**: Validates hands, applies rule logic
+- **Scoring Engine**: Computes points based on rule configuration
+- **Data Layer**: JSON-based rule definitions
+
+**Frontend (React/TypeScript)**
+- UI-only layer for user interaction
+- Tile selection, rule browsing, scoreboard display
+
+::: {.notes}
+The architecture cleanly separates presentation from business logic. The backend
+is purely Python-based, using FastAPI for REST endpoints. All rule definitions
+live in JSON files, making the system data-driven and maintainable.
+:::
+
+---
+
+## Python Technique 1: Tile Recognition
+
+### Enum-based Type System
+
+```python
+from enum import Enum
+from pydantic import BaseModel
+
+class Suit(str, Enum):
+    MAN = "Man"  # Characters
+    PIN = "Pin"  # Dots/Circles
+    SOU = "Sou"  # Bamboo
+
+class Tile(BaseModel):
+    id: str
+    suit: Suit
+    rank: int
+    name_cn: str
+    name_en: str
+    image_url: str
+```
+
+**Key Design Decisions:**
+- Type-safe enums prevent invalid suit values
+- Pydantic models provide validation and serialization
+- Bilingual support built into the data model
+
+::: {.notes}
+Using Python enums and Pydantic models ensures type safety and automatic
+validation. This prevents runtime errors from invalid tile data and makes
+the API self-documenting.
+:::
+
+---
+
+## Python Technique 2: Basic Rules Abstraction
+
+### Data-Driven Rule Loading
+
+```python
+def load_basic_rules_from_json(path: str) -> None:
+    """Load non-scoring basic rules from JSON."""
+    p = Path(path)
+    data = json.loads(p.read_text(encoding="utf-8"))
+    
+    for item in data:
+        BASIC_RULES.append(
+            BasicRule(
+                id=item["id"],
+                name_en=_text(item.get("name"), "en"),
+                name_cn=_text(item.get("name"), "zh"),
+                description_en=_text(item.get("description"), "en"),
+                section=BasicRuleSection(item.get("section")),
+            )
+        )
+```
+
+**Benefits:**
+- Rules defined in JSON (no code changes needed)
+- Bilingual support with fallback logic
+- Separation of data from logic
+
+::: {.notes}
+This demonstrates the single responsibility principle: rule definitions are
+separate from rule processing. The JSON format makes it easy for non-programmers
+to update rules, and the loading function handles encoding and validation.
+:::
+
+---
+
+## Python Technique 3: Hand Checker Algorithm
+
+### Recursive Backtracking
+
+```python
+def check_standard_win(counts: Counter) -> Optional[Dict]:
+    """Recursive backtracking to find 4 melds + 1 pair."""
+    candidates = [t for t, c in counts.items() if c >= 2]
+    
+    for tile in candidates:
+        if counts[tile] >= 2:
+            counts[tile] -= 2
+            melds = []
+            if solve_melds(counts, melds):
+                return {"pair": [tile, tile], "melds": melds}
+            counts[tile] += 2  # Backtrack
+    return None
+
+def solve_melds(counts: Counter, melds: List[List[str]]) -> bool:
+    """Try forming melds (triplets or sequences)."""
+    if sum(counts.values()) == 0:
+        return True
+    
+    first_tile = sorted(counts.keys())[0]
+    # Try triplet, then sequence, with backtracking
+    ...
+```
+
+**Algorithm Highlights:**
+- Backtracking for combinatorial search
+- Counter for efficient tile counting
+- Deterministic ordering for reproducibility
+
+::: {.notes}
+This is a classic backtracking algorithm. The key insight is trying all possible
+pair candidates, then recursively solving for the remaining melds. The backtracking
+ensures we explore all possibilities correctly.
+:::
+
+---
+
+## Python Technique 4: AI Q&A Integration
+
+### LLM Integration with Context Injection
+
+```python
+def _ask_gemini(question: str, ruleset: Dict, is_zh: bool) -> Optional[str]:
+    """Use Gemini to answer questions about Sichuan Mahjong."""
+    client = _get_gemini_client()
+    
+    # Prepare context with ruleset information
+    context_hands = [{
+        "name": h.get("name"),
+        "description": h.get("description_one_line"),
+        "base_multiplier": h.get("scoring", {}).get("base_multiplier")
+    } for h in hands[:10]]
+    
+    prompt = f"""You are a helpful assistant for Sichuan Mahjong.
+Context - Example hands:
+{json.dumps(context_hands, ensure_ascii=False, indent=2)}
+Question: {question}"""
+    
+    response = client.models.generate_content(
+        model=settings.GEMINI_MODEL,
+        contents=prompt
+    )
+    return response.text
+```
+
+**Engineering Practices:**
+- Lazy initialization of API client
+- Context-aware prompting with structured data
+- Bilingual detection and response
+
+::: {.notes}
+This shows how to integrate external AI services cleanly. The function extracts
+relevant context from the ruleset, formats it for the LLM, and handles errors
+gracefully. The lazy initialization pattern avoids unnecessary API calls.
+:::
+
+---
+
+## Python Technique 5: Scoreboard & Settlement
+
+### Rule-Based Multi-Player Scoring
+
+```python
+def calculate_rule_based_scores(
+    request: RuleBasedScoreRoundRequest,
+) -> RuleBasedScoreRoundResponse:
+    """Rule-based scoring engine with transfer logic."""
+    players_by_name = {p.name: p for p in request.players}
+    win_deltas = {p.name: 0 for p in request.players}
+    kong_deltas = {p.name: 0 for p in request.players}
+    
+    for round_input in request.player_rounds:
+        # Compute win multipliers from ruleset
+        breakdown = compute_total_multiplier(
+            is_win=True,
+            hand_id=round_input.hand_type_id,
+            factors=round_input.factor_values,
+        )
+        
+        # Transfer settlement: winner +M, payers -M
+        if payer_names:
+            win_deltas[winner] += amount * len(payer_names)
+            for payer in payer_names:
+                win_deltas[payer] -= amount
+    
+    # Apply deltas and return breakdown
+    ...
+```
+
+**Key Features:**
+- Dictionary-based state management
+- Transfer logic for multi-player settlements
+- Rule composition (hand + factors + events)
+
+::: {.notes}
+This demonstrates complex state management with dictionaries for efficient
+lookups. The scoring engine is purely functional in its approach: it computes
+deltas based on rules, then applies them. This makes the logic testable and
+predictable.
+:::
+
+---
+
+## Python Skill Stack Summary
+
+### Core Techniques Demonstrated
+
+**Data Modeling & Validation**
+- Pydantic models for type safety
+- Enum-based domain modeling
+- Bilingual data structures
+
+**Algorithm Design**
+- Recursive backtracking
+- Counter-based frequency analysis
+- Deterministic ordering
+
+**System Design**
+- Separation of concerns (data/logic/API)
+- Single source of truth (JSON ruleset)
+- Rule abstraction and composition
+
+**API Integration**
+- FastAPI for REST endpoints
+- LLM integration with context injection
+- Error handling and fallbacks
+
+::: {.notes}
+This project showcases production-ready Python engineering. We use modern
+libraries (Pydantic, FastAPI) while maintaining clean, readable code. The
+architecture is extensible and maintainable.
+:::
+
+---
+
+## Takeaways
+
+### What Makes This System Strong
+
+1. **Rule Abstraction**: Rules are data, not code
+   - JSON-based configuration enables non-programmer updates
+   - Single source of truth prevents inconsistencies
+
+2. **Algorithm Correctness**: Backtracking ensures all valid hands are found
+   - Deterministic behavior for reproducibility
+   - Efficient search with early termination
+
+3. **Type Safety**: Pydantic models catch errors at API boundaries
+   - Self-documenting API contracts
+   - Automatic validation and serialization
+
+4. **Extensibility**: New rules can be added without code changes
+   - Factor-based multiplier system
+   - Event-driven settlement logic
+
+::: {.notes}
+The main takeaway is that good Python engineering means choosing the right
+abstractions. By separating data from logic, we create a system that's both
+powerful and maintainable. The rule-based approach scales to complex scenarios.
+:::
+
+---
+
+## Future Extensions
+
+### Potential Enhancements
+
+**Performance Optimization**
+- Caching for frequently accessed rules
+- Parallel processing for multi-hand validation
+- Database backend for rule persistence
+
+**Feature Additions**
+- Support for additional Mahjong variants
+- Machine learning for hand recommendation
+- Real-time multiplayer game engine
+
+**Developer Experience**
+- Rule validation tooling
+- Automated test generation from ruleset
+- Interactive rule editor UI
+
+**Production Readiness**
+- Comprehensive test coverage
+- Performance benchmarking
+- API documentation generation
+
+::: {.notes}
+The current architecture supports these extensions naturally. The rule-based
+design means new variants can be added as new JSON files. The modular structure
+allows for incremental improvements without breaking existing functionality.
+:::
+
+---
+
+## Thank You
+
+### Questions?
+
+

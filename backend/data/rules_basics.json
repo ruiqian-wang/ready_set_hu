@@ -1,0 +1,101 @@
+[
+    {
+      "id": "basic.que_men",
+      "name": { "zh": "缺门", "en": "Missing Suit (Que Men)" },
+      "description": {
+        "zh": "开局选择并确定自己要“缺”的一种花色（万/条/筒）。在胡牌时，手牌中不能再含有缺门那一门的牌，因此通常会尽早将缺门花色打掉。",
+        "en": "At the start, choose one suit (Characters/Bamboo/Dots) to be your missing suit. You cannot win while still holding tiles of that suit, so you usually discard them early."
+      },
+      "section": "before_game"
+    },
+    {
+      "id": "basic.exchange_three",
+      "name": { "zh": "换三张", "en": "Exchange Three Tiles" },
+      "description": {
+        "zh": "开局时，每位玩家从手牌中选择 3 张牌并同时交换，交换方向通常为顺时针、逆时针或对家，具体由本局规则决定。换完三张后再进入正式摸打阶段。",
+        "en": "At the beginning, each player selects 3 tiles and exchanges them simultaneously. The exchange direction (clockwise, counterclockwise, or across) depends on the table rules. Normal turns begin after the exchange."
+      },
+      "section": "before_game"
+    },
+    {
+      "id": "basic.hua_zhu",
+      "name": { "zh": "花猪", "en": "Hua Zhu (Holding All Three Suits)" },
+      "description": {
+        "zh": "完成定缺后，如果玩家手牌中仍同时包含万、条、筒三种花色，即被判为“花猪”，会触发额外的惩罚结算，具体惩罚方式取决于计分规则。",
+        "en": "After choosing a missing suit, if a player still holds tiles from all three suits, they are considered 'Hua Zhu' and will receive a penalty according to the scoring rules."
+      },
+      "section": "before_game"
+    },
+    {
+      "id": "basic.bloody_battle",
+      "name": { "zh": "血战到底", "en": "Bloody Battle" },
+      "description": {
+        "zh": "第一家胡牌后牌局不会立刻结束，其余玩家继续进行，直到三家胡牌或牌墙摸完为止。",
+        "en": "After the first player wins, the round continues until three players have won or the wall is exhausted."
+      },
+      "section": "before_game"
+    },
+    {
+      "id": "basic.turn_structure",
+      "name": { "zh": "摸打节奏", "en": "Turn Structure" },
+      "description": {
+        "zh": "自己的回合通常为：先摸一张牌，再打出一张牌。通过不断摸打，逐步组成面子并满足胡牌条件。",
+        "en": "A typical turn consists of drawing one tile and then discarding one tile, gradually forming melds and meeting the win condition."
+      },
+      "section": "during_turn"
+    },
+    {
+      "id": "basic.pung",
+      "name": { "zh": "碰牌", "en": "Pung" },
+      "description": {
+        "zh": "当其他玩家打出一张牌时，如果你手中已有两张相同的牌，可以选择“碰”，将这三张牌组成一个刻子并亮出。碰牌后立即轮到你出牌。",
+        "en": "When another player discards a tile, if you have two matching tiles, you may declare a pung, forming an exposed triplet. After punging, you immediately take a turn to discard."
+      },
+      "section": "during_turn"
+    },
+    {
+      "id": "basic.kong",
+      "name": { "zh": "杠牌", "en": "Kong" },
+      "description": {
+        "zh": "当你手中已有三张相同牌，或通过碰牌后补成四张相同牌时，可以选择“杠”。杠牌完成后需要补摸一张牌再出牌。不同类型的杠（点杠、补杠、暗杠）不仅影响流程，还会产生单独的杠分结算。",
+        "en": "When you have four identical tiles—either directly or by upgrading a pung—you may declare a kong. After declaring a kong, you draw a replacement tile and then discard. Different kong types (from discard, add-kong, concealed) affect both flow and separate kong scoring."
+      },
+      "section": "during_turn"
+    },
+    {
+        "id": "basic.kong_followup",
+        "name": { "zh": "杠后补张", "en": "Draw After Kong" },
+        "description": {
+          "zh": "完成杠牌后需要立即补摸一张牌，补张后若自摸胡牌，可能构成杠上开花。",
+          "en": "After declaring a kong, you must immediately draw a replacement tile. Winning on this draw may count as a win-after-kong."
+        },
+        "section": "during_turn"
+    },
+    {
+      "id": "basic.self_draw",
+      "name": { "zh": "自摸", "en": "Self-draw Win" },
+      "description": {
+        "zh": "在自己的回合中摸到胡牌所需的那一张牌并立即胡牌，称为自摸。自摸通常作为可叠加的加倍条件，会影响最终得分。",
+        "en": "Winning by drawing the needed tile on your own turn is called a self-draw. It is usually treated as a stackable multiplier that affects the final score."
+      },
+      "section": "during_turn"
+    },
+    {
+      "id": "basic.discard_win",
+      "name": { "zh": "点炮", "en": "Discard Win" },
+      "description": {
+        "zh": "当其他玩家打出一张牌，而这张牌正好补齐你的胡牌条件时，你可以用该牌胡牌，这种情况称为点炮。点炮需要记录出牌者，用于后续责任和结算。",
+        "en": "When another player discards a tile that completes your hand, you may win using that tile. This is called a discard win, and the discarding player is recorded for settlement purposes."
+      },
+      "section": "during_turn"
+    },
+    {
+        "id": "basic.rob_kong",
+        "name": { "zh": "抢杠胡", "en": "Robbing a Kong" },
+        "description": {
+          "zh": "当其他玩家进行补杠时，若该牌能让你胡牌，你可以抢杠胡并直接胡牌。",
+          "en": "When another player attempts an add-kong, you may rob the kong and win if that tile completes your hand."
+        },
+        "section": "during_turn"
+      }
+  ]

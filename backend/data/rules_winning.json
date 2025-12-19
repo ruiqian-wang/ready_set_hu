@@ -1,0 +1,495 @@
+{
+    "meta": {
+      "schema_version": "1.0.0",
+      "ruleset": "SichuanMahjong",
+      "language": ["zh-CN", "en"],
+      "unit": "multiplier",
+      "updated_at": "2025-12-13",
+      "notes": [
+        "计分采用“基础番型倍数 × 叠加因子倍数（含根的重复倍数）”。Scoring uses 'base multiplier * product(extra multipliers); countable factors repeat'.",
+        "若未来要加入更多番型，只需追加 hands[] 条目。If more hands need to be added in the future, add more entries to the hands[] array."
+      ]
+    },
+  
+    "tile_encoding": {
+      "suits": {
+        "wan": { "zh": "万", "en": "Characters" },
+        "tiao": { "zh": "条", "en": "Bamboo" },
+        "tong": { "zh": "筒", "en": "Dots" }
+      },
+      "tile_code_format": {
+        "pattern": "^[1-9](wan|tiao|tong)$",
+        "examples": ["1wan", "9wan", "3tiao", "7tong"]
+      }
+    },
+  
+    "hands": [
+      {
+        "id": "hand.pinghu",
+        "name": { "zh": "平胡", "en": "Ping Hu" },
+        "aliases": { "zh": ["平和"], "en": ["Plain Win"] },
+        "category": "structure",
+        "tags": ["standard_win", "meld_based"],
+        "nlu": {
+          "intent": "query_hand_rule",
+          "keywords": {
+            "zh": ["平胡", "平和", "普通胡", "基础胡"],
+            "en": ["ping hu", "plain win", "basic win"]
+          },
+          "utterance_examples": [
+            { "q": "平胡怎么算？", "lang": "zh" },
+            { "q": "What is Ping Hu?", "lang": "en" }
+          ]
+        },
+        "description_one_line": {
+          "zh": "由 4 组刻子或顺子 + 1 对将牌组成的基础胡牌牌型。",
+          "en": "A basic winning hand made of 4 sets (triplets or sequences) plus 1 pair."
+        },
+        "scoring": {
+          "base_multiplier": 1,
+          "score_label": { "zh": "1倍", "en": "1x" },
+          "notes": {
+            "zh": "这里按你的定义允许刻子或顺子；若你后续要区分更严格的平胡规则，可在 requires_check 中增加校验。",
+            "en": "Definition follows your description; add checks later if needed."
+          }
+        },
+        "constraints": {
+          "requires_win": true,
+          "allow_with_qingyise": true,
+          "allow_with_zimo": true,
+          "allow_with_gangshangkaihua": true,
+          "allow_with_qiangganghu": true,
+          "allow_with_haidilaoyue": true,
+          "allow_with_gen": true,
+          "conflicts_with": ["hand.pengpenghu", "hand.qidui", "hand.jinggoudiao"],
+          "requires_check": []
+        },
+        "examples": [
+          {
+            "example_id": "ex.pinghu.1",
+            "title": { "zh": "平胡示例", "en": "Ping Hu Example" },
+            "tiles": [
+              "1wan", "2wan", "3wan",
+              "4wan", "5wan", "6wan",
+              "2tiao", "3tiao", "4tiao",
+              "7tong", "8tong", "9tong",
+              "8wan", "8wan"
+            ],
+            "render": { "image": "assets/examples/pinghu_1.png", "layout": "14_tiles_row" },
+            "explain": {
+              "zh": "4 个顺子（123万/456万/234条/789筒）+ 将牌（88万）。",
+              "en": "4 sequences + 1 pair."
+            }
+          }
+        ]
+      },
+  
+      {
+        "id": "hand.pengpenghu",
+        "name": { "zh": "碰碰胡", "en": "All Triplets" },
+        "aliases": { "zh": ["大对子", "对对胡"], "en": ["Pung Pung Hu"] },
+        "category": "structure",
+        "tags": ["triplets", "meld_based", "standard_win"],
+        "nlu": {
+          "intent": "query_hand_rule",
+          "keywords": {
+            "zh": ["碰碰胡", "大对子", "对对胡", "全刻子"],
+            "en": ["all triplets", "pung pung hu", "all pungs"]
+          },
+          "utterance_examples": [
+            { "q": "大对子是多少倍？", "lang": "zh" },
+            { "q": "How to score All Triplets?", "lang": "en" }
+          ]
+        },
+        "description_one_line": {
+          "zh": "由 4 个刻子（或杠牌）+ 1 对将牌组成的胡牌。",
+          "en": "A winning hand of 4 triplets (or kongs) plus 1 pair."
+        },
+        "scoring": {
+          "base_multiplier": 2,
+          "score_label": { "zh": "2倍", "en": "2x" },
+          "notes": { "zh": "刻子可来自手牌或碰牌/杠牌。", "en": "Triplets can be concealed or melded." }
+        },
+        "constraints": {
+          "requires_win": true,
+          "allow_with_qingyise": true,
+          "allow_with_zimo": true,
+          "allow_with_gangshangkaihua": true,
+          "allow_with_qiangganghu": true,
+          "allow_with_haidilaoyue": true,
+          "allow_with_gen": true,
+          "conflicts_with": ["hand.pinghu", "hand.qidui", "hand.jinggoudiao"],
+          "requires_check": []
+        },
+        "examples": [
+          {
+            "example_id": "ex.pengpenghu.1",
+            "title": { "zh": "碰碰胡示例", "en": "All Triplets Example" },
+            "tiles": [
+              "2wan", "2wan", "2wan",
+              "5wan", "5wan", "5wan",
+              "7tiao", "7tiao", "7tiao",
+              "3tong", "3tong", "3tong",
+              "9tong", "9tong"
+            ],
+            "render": { "image": "assets/examples/pengpenghu_1.png", "layout": "14_tiles_row" },
+            "explain": {
+              "zh": "4 个刻子（222万/555万/777条/333筒）+ 将牌（99筒）。",
+              "en": "4 triplets + 1 pair."
+            }
+          }
+        ]
+      },
+  
+      {
+        "id": "hand.qidui",
+        "name": { "zh": "七对", "en": "Seven Pairs" },
+        "aliases": { "zh": ["7对", "七對"], "en": ["7 pairs"] },
+        "category": "structure",
+        "tags": ["pairs", "no_melds", "standard_win"],
+        "nlu": {
+          "intent": "query_hand_rule",
+          "keywords": {
+            "zh": ["七对", "7对", "七个对子", "对子胡"],
+            "en": ["seven pairs", "7 pairs", "pairs hand"]
+          },
+          "utterance_examples": [
+            { "q": "七对的要求是什么？", "lang": "zh" },
+            { "q": "What is Seven Pairs?", "lang": "en" }
+          ]
+        },
+        "description_one_line": {
+          "zh": "由 7 组对子组成（共 14 张）。",
+          "en": "A winning hand made of 7 pairs (14 tiles)."
+        },
+        "scoring": {
+          "base_multiplier": 4,
+          "score_label": { "zh": "4倍", "en": "4x" },
+          "notes": { "zh": "可与清一色/自摸/根等叠加（按你的叠加规则）。", "en": "Stackable with extra factors per your rules." }
+        },
+        "constraints": {
+          "requires_win": true,
+          "allow_with_qingyise": true,
+          "allow_with_zimo": true,
+          "allow_with_gangshangkaihua": true,
+          "allow_with_qiangganghu": true,
+          "allow_with_haidilaoyue": true,
+          "allow_with_gen": true,
+          "conflicts_with": ["hand.pinghu", "hand.pengpenghu", "hand.jinggoudiao"],
+          "requires_check": []
+        },
+        "examples": [
+          {
+            "example_id": "ex.qidui.1",
+            "title": { "zh": "七对示例", "en": "Seven Pairs Example" },
+            "tiles": [
+              "1wan", "1wan",
+              "3wan", "3wan",
+              "5wan", "5wan",
+              "2tiao", "2tiao",
+              "6tiao", "6tiao",
+              "7tong", "7tong",
+              "9tong", "9tong"
+            ],
+            "render": { "image": "assets/examples/qidui_1.png", "layout": "14_tiles_row" },
+            "explain": {
+              "zh": "7 个对子：11万/33万/55万/22条/66条/77筒/99筒。",
+              "en": "Seven distinct pairs."
+            }
+          }
+        ]
+      },
+  
+      {
+        "id": "hand.jinggoudiao",
+        "name": { "zh": "金钩钓", "en": "Single-Wait Win" },
+        "aliases": { "zh": ["金钩吊", "单钓"], "en": ["single wait"] },
+        "category": "structure",
+        "tags": ["single_wait", "meld_heavy", "standard_win"],
+        "nlu": {
+          "intent": "query_hand_rule",
+          "keywords": {
+            "zh": ["金钩钓", "金钩吊", "单钓", "只剩一张"],
+            "en": ["jin gou diao", "single wait", "one tile in hand"]
+          },
+          "utterance_examples": [
+            { "q": "金钩钓怎么胡？", "lang": "zh" },
+            { "q": "What is Jin Gou Diao?", "lang": "en" }
+          ]
+        },
+        "description_one_line": {
+          "zh": "胡牌时其余牌都已碰/杠成面子，手里只剩 1 张牌，单钓成胡。",
+          "en": "At win time, all other tiles are melded (pungs/kongs); only 1 tile remains in hand for a single wait."
+        },
+        "scoring": {
+          "base_multiplier": 4,
+          "score_label": { "zh": "4倍", "en": "4x" },
+          "notes": {
+            "zh": "是否“必须有碰/杠记录”建议由你的前端/后端在记分时用明细来约束（例如记录 melds 数量）。",
+            "en": "You may want to enforce meld-record checks in your scoring UI."
+          }
+        },
+        "constraints": {
+          "requires_win": true,
+          "allow_with_qingyise": true,
+          "allow_with_zimo": true,
+          "allow_with_gangshangkaihua": true,
+          "allow_with_qiangganghu": true,
+          "allow_with_haidilaoyue": true,
+          "allow_with_gen": true,
+          "conflicts_with": ["hand.pinghu", "hand.pengpenghu", "hand.qidui"],
+          "requires_check": ["check_single_wait", "check_meld_count_heuristic"]
+        },
+        "examples": [
+          {
+            "example_id": "ex.jinggoudiao.1",
+            "title": { "zh": "金钩钓示意（以 tiles 表示整体牌型）", "en": "Jin Gou Diao Example (represented by full tiles)" },
+            "tiles": [
+              "2wan", "2wan", "2wan",
+              "5wan", "5wan", "5wan",
+              "7tiao", "7tiao", "7tiao",
+              "3tong", "3tong", "3tong",
+              "9tong", "9tong"
+            ],
+            "render": { "image": "assets/examples/jinggoudiao_1.png", "layout": "14_tiles_row" },
+            "explain": {
+              "zh": "牌型本质仍是 4 面子 + 1 将，但记分时强调：胡牌时“手里只剩 1 张单钓”，其余来自碰/杠面子。",
+              "en": "Structurally 4 melds + 1 pair; scoring emphasizes only 1 tile remains in hand at the moment of win."
+            }
+          }
+        ]
+      },
+  
+      {
+        "id": "hand.tianhu",
+        "name": { "zh": "天胡", "en": "Heavenly Hand" },
+        "aliases": { "zh": ["天湖"], "en": ["tian hu"] },
+        "category": "timing",
+        "tags": ["dealer", "instant_win"],
+        "nlu": {
+          "intent": "query_hand_rule",
+          "keywords": {
+            "zh": ["天胡", "天湖", "庄家起手胡"],
+            "en": ["heavenly hand", "dealer instant win"]
+          },
+          "utterance_examples": [
+            { "q": "天胡是多少倍？", "lang": "zh" },
+            { "q": "How much is Tian Hu?", "lang": "en" }
+          ]
+        },
+        "description_one_line": {
+          "zh": "庄家发完第一轮手牌后，立即满足胡牌条件。",
+          "en": "Dealer wins immediately after the initial deal (before any draw)."
+        },
+        "scoring": {
+          "base_multiplier": 32,
+          "score_label": { "zh": "32倍", "en": "32x" },
+          "notes": { "zh": "它更像“时机番型”，通常可与结构番型叠加（是否允许由你规则决定）。", "en": "Timing-based; stacking policy can be adjusted." }
+        },
+        "constraints": {
+          "requires_win": true,
+          "allow_with_qingyise": true,
+          "allow_with_zimo": false,
+          "allow_with_gangshangkaihua": false,
+          "allow_with_qiangganghu": false,
+          "allow_with_haidilaoyue": false,
+          "allow_with_gen": true,
+          "conflicts_with": ["hand.dihu"],
+          "requires_check": ["check_dealer", "check_win_on_initial_deal"]
+        },
+        "examples": [
+          {
+            "example_id": "ex.tianhu.1",
+            "title": { "zh": "天胡示例（示意）", "en": "Tian Hu Example (illustrative)" },
+            "tiles": [
+              "1wan", "2wan", "3wan",
+              "4wan", "5wan", "6wan",
+              "2tiao", "3tiao", "4tiao",
+              "7tong", "8tong", "9tong",
+              "8wan", "8wan"
+            ],
+            "render": { "image": "assets/examples/tianhu_1.png", "layout": "14_tiles_row" },
+            "explain": {
+              "zh": "示例用平胡结构展示“起手即成胡”。关键在时机：庄家发牌后立即胡。",
+              "en": "Any valid win pattern; the key is timing on the initial deal."
+            }
+          }
+        ]
+      },
+  
+      {
+        "id": "hand.dihu",
+        "name": { "zh": "地胡", "en": "Earthly Hand" },
+        "aliases": { "zh": ["地胡"], "en": ["di hu"] },
+        "category": "timing",
+        "tags": ["non_dealer", "first_draw_win"],
+        "nlu": {
+          "intent": "query_hand_rule",
+          "keywords": {
+            "zh": ["地胡", "闲家第一轮摸牌胡"],
+            "en": ["earthly hand", "non-dealer first draw win"]
+          },
+          "utterance_examples": [
+            { "q": "地胡是怎么定义的？", "lang": "zh" },
+            { "q": "What is Di Hu?", "lang": "en" }
+          ]
+        },
+        "description_one_line": {
+          "zh": "非庄家在第一轮摸牌后，立即满足胡牌条件并胡牌。",
+          "en": "Non-dealer wins immediately on their first draw."
+        },
+        "scoring": {
+          "base_multiplier": 32,
+          "score_label": { "zh": "32倍", "en": "32x" },
+          "notes": { "zh": "同样是“时机番型”，叠加策略可按你的规则调整。", "en": "Timing-based; stacking policy can be adjusted." }
+        },
+        "constraints": {
+          "requires_win": true,
+          "allow_with_qingyise": true,
+          "allow_with_zimo": true,
+          "allow_with_gangshangkaihua": false,
+          "allow_with_qiangganghu": false,
+          "allow_with_haidilaoyue": false,
+          "allow_with_gen": true,
+          "conflicts_with": ["hand.tianhu"],
+          "requires_check": ["check_non_dealer", "check_win_on_first_draw"]
+        },
+        "examples": [
+          {
+            "example_id": "ex.dihu.1",
+            "title": { "zh": "地胡示例（示意）", "en": "Di Hu Example (illustrative)" },
+            "tiles": [
+              "2wan", "2wan", "2wan",
+              "5wan", "5wan", "5wan",
+              "7tiao", "7tiao", "7tiao",
+              "3tong", "3tong", "3tong",
+              "9tong", "9tong"
+            ],
+            "render": { "image": "assets/examples/dihu_1.png", "layout": "14_tiles_row" },
+            "explain": {
+              "zh": "示例用碰碰胡结构展示“第一轮摸牌即成胡”。关键在时机：闲家第一摸后胡。",
+              "en": "Any valid win pattern; the key is timing on the first draw."
+            }
+          }
+        ]
+      }
+    ],
+  
+    "multipliers": {
+      "stacking_rule": "base_multiplier * product(extra_multipliers); countable factors repeat",
+      "factors": [
+        {
+          "id": "factor.gen",
+          "name": { "zh": "根", "en": "Gen (four of a kind)" },
+          "type": "countable",
+          "ui": { "control": "stepper", "min": 0, "max": 4, "default": 0 },
+          "apply": { "mode": "repeat", "multiplier_each": 2 },
+          "description": {
+            "zh": "4 张一样的牌为 1 根；每有 1 根，额外 ×2（可重复）。",
+            "en": "Each Gen doubles once (repeatable)."
+          }
+        },
+        {
+          "id": "factor.zimo",
+          "name": { "zh": "自摸", "en": "Self-draw" },
+          "type": "boolean",
+          "ui": { "control": "toggle", "default": false },
+          "apply": { "mode": "once", "multiplier": 2 },
+          "description": { "zh": "自摸胡牌 ×2。", "en": "Self-draw ×2." }
+        },
+        {
+          "id": "factor.gangshangkaihua",
+          "name": { "zh": "杠上开花", "en": "Win after Kong" },
+          "type": "boolean",
+          "ui": { "control": "toggle", "default": false },
+          "apply": { "mode": "once", "multiplier": 2 },
+          "description": { "zh": "杠牌后补张自摸胡牌 ×2。", "en": "Win after kong replacement draw ×2." }
+        },
+        {
+          "id": "factor.qiangganghu",
+          "name": { "zh": "抢杠胡", "en": "Robbing a Kong" },
+          "type": "boolean",
+          "ui": { "control": "toggle", "default": false },
+          "apply": { "mode": "once", "multiplier": 2 },
+          "description": { "zh": "胡别人补杠那张牌 ×2。", "en": "Win on opponent's attempted kong tile ×2." }
+        },
+        {
+          "id": "factor.haidilaoyue",
+          "name": { "zh": "海底捞月", "en": "Last Tile Win" },
+          "type": "boolean",
+          "ui": { "control": "toggle", "default": false },
+          "apply": { "mode": "once", "multiplier": 2 },
+          "description": { "zh": "摸到最后一张牌胡牌 ×2。", "en": "Win on the last tile ×2." }
+        },
+        {
+          "id": "factor.qingyise",
+          "name": { "zh": "清一色", "en": "Pure One Suit" },
+          "type": "boolean",
+          "ui": { "control": "toggle", "default": false },
+          "apply": { "mode": "once", "multiplier": 4 },
+          "constraints": { "requires_suit_check": true },
+          "description": { "zh": "全为同一门花色（万/条/筒）×4。", "en": "All tiles in one suit ×4." }
+        }
+      ]
+    },
+
+    "events": [
+      {
+        "id": "event.dian_gang",
+        "name": { "zh": "点杠", "en": "Point Kong (Dian Gang)" },
+        "type": "transfer_fixed",
+        "payer_policy": "single_payer",
+        "amount_per_payer": 2,
+        "ui": { "control": "stepper_with_payer", "min": 0, "max": 4, "default": 0 },
+        "description": {
+          "zh": "点杠：点杠的人出 2 分（可多次）。",
+          "en": "Point kong: the responsible player pays 2 points (repeatable)."
+        }
+      },
+      {
+        "id": "event.bu_gang",
+        "name": { "zh": "补杠", "en": "Added Kong (Bu Gang)" },
+        "type": "transfer_fixed",
+        "payer_policy": "all_not_won",
+        "amount_per_payer": 1,
+        "ui": { "control": "stepper", "min": 0, "max": 4, "default": 0 },
+        "description": {
+          "zh": "补杠：没胡的人都要给 1 分（可多次；已胡的人不赔）。",
+          "en": "Added kong: each non-winner pays 1 point (repeatable)."
+        }
+      },
+      {
+        "id": "event.an_gang",
+        "name": { "zh": "暗杠", "en": "Concealed Kong (An Gang)" },
+        "type": "transfer_fixed",
+        "payer_policy": "all_not_won",
+        "amount_per_payer": 2,
+        "ui": { "control": "stepper", "min": 0, "max": 4, "default": 0 },
+        "description": {
+          "zh": "暗杠：没胡的人都要给 2 分（可多次；已胡的人不赔）。",
+          "en": "Concealed kong: each non-winner pays 2 points (repeatable)."
+        }
+      }
+    ],
+  
+    "settlement": {
+      "flow": [
+        "user_select_win_or_not",
+        "if_win_select_hand_type",
+        "collect_extra_factors",
+        "compute_total_multiplier",
+        "return_breakdown"
+      ],
+      "compute": {
+        "base": "hands[].scoring.base_multiplier",
+        "extras": {
+          "boolean": "multiply enabled factor multipliers",
+          "countable": "multiply (multiplier_each ^ count)"
+        },
+        "result": "total_multiplier = base_multiplier * extras_total"
+      },
+      "breakdown_format": {
+        "include": ["hand_id", "hand_base_multiplier", "enabled_factors", "extras_total", "total_multiplier"]
+      }
+    }
+  }
