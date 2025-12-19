@@ -13,10 +13,16 @@ else:
 class Settings:
     PROJECT_NAME: str = "Ready, Set, Hu!"
     API_V1_STR: str = "/api"
-    BACKEND_CORS_ORIGINS: list = [
+    # CORS origins - allow localhost for dev and Vercel domains for production
+    _cors_origins = [
         "http://localhost:3000",
-        "http://localhost:5173", # Vite default
+        "http://localhost:5173",  # Vite default
     ]
+    # Add Vercel preview and production domains dynamically
+    _vercel_url = os.getenv("VERCEL_URL", "")
+    if _vercel_url:
+        _cors_origins.append(f"https://{_vercel_url}")
+    BACKEND_CORS_ORIGINS: list = _cors_origins
     # Gemini API configuration
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.0-flash-exp")
